@@ -20,8 +20,8 @@ describe('words', () => {
   });
 
   it('uses "Złodziei nie ma" for a negative place', () => {
-    expect(sentence(neg({ type: 'below' }), 2)).toBe('Złodziei nie ma pod mną.');
-    expect(sentence(neg({ type: 'below' }), 1)).toBe('Złodziej nie jest pod mną.');
+    expect(sentence(neg({ type: 'below' }), 2)).toBe('Złodziei nie ma pode mną.');
+    expect(sentence(neg({ type: 'below' }), 1)).toBe('Złodziej nie jest pode mną.');
   });
 });
 

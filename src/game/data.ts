@@ -28,8 +28,8 @@ export const ACCESSORIES = {
 
 export const PLACES = {
   beside: { tail: ['obok', 'mnie'], arrow: '↔️↕️' },
-  above: { tail: ['nad', 'mną'], arrow: '⬆️' },
-  below: { tail: ['pod', 'mną'], arrow: '⬇️' },
+  above: { tail: ['nade', 'mną'], arrow: '⬆️' },
+  below: { tail: ['pode', 'mną'], arrow: '⬇️' },
   top: { tail: ['na', 'górze'], arrow: '⏫' },
   bottom: { tail: ['na', 'dole'], arrow: '⏬' },
   left: { tail: ['po', 'lewej'], arrow: '⏪' },
@@ -41,7 +41,7 @@ export const SYLLABLES: Readonly<Record<string, readonly string[]>> = {
   złodziej: ['zło', 'dziej'], złodziei: ['zło', 'dzie', 'i'], jeden: ['je', 'den'], żaden: ['ża', 'den'],
   jest: ['jest'], nie: ['nie'], ma: ['ma'], czapkę: ['czap', 'kę'], czapki: ['czap', 'ki'],
   okulary: ['o', 'ku', 'la', 'ry'], okularów: ['o', 'ku', 'la', 'rów'], szalik: ['sza', 'lik'], szalika: ['sza', 'li', 'ka'],
-  obok: ['o', 'bok'], mnie: ['mnie'], nad: ['nad'], pod: ['pod'], mną: ['mną'], na: ['na'], po: ['po'],
+  obok: ['o', 'bok'], mnie: ['mnie'], nade: ['na', 'de'], pode: ['po', 'de'], mną: ['mną'], na: ['na'], po: ['po'],
   górze: ['gó', 'rze'], dole: ['do', 'le'], lewej: ['le', 'wej'], prawej: ['pra', 'wej'],
   czerwonym: ['czer', 'wo', 'nym'], niebieskim: ['nie', 'bie', 'skim'], zielonym: ['zie', 'lo', 'nym'], żółtym: ['żół', 'tym'],
   psem: ['psem'], żabą: ['ża', 'bą'], misiem: ['mi', 'siem'], królikiem: ['kró', 'li', 'kiem'], sową: ['so', 'wą'],
