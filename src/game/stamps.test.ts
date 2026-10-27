@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { earned, maxThieves, STAMPS } from './stamps';
 import type { Settings } from './types';
 
-const base: Settings = { size: '3x3', k: 1, liars: false, read: true, hints: true, syl: true, lives: 5 };
+const base: Settings = { size: '3x3', k: 1, liars: false, hints: true, syl: true, lives: 5 };
 
 describe('earned', () => {
   it('gives only the first stamp for the default settings', () => {
@@ -10,11 +10,11 @@ describe('earned', () => {
   });
 
   it('gives a stamp for each help option that is off', () => {
-    expect(earned({ ...base, read: false, hints: false, syl: false })).toEqual(['case', 'noread', 'nohints', 'nosyl', 'reader']);
+    expect(earned({ ...base, hints: false, syl: false })).toEqual(['case', 'nohints', 'nosyl']);
   });
 
   it('gives the master stamp only for the hardest settings', () => {
-    const hardest: Settings = { size: '4x4', k: 3, liars: true, read: false, hints: false, syl: false, lives: 1 };
+    const hardest: Settings = { size: '4x4', k: 3, liars: true, hints: false, syl: false, lives: 1 };
     expect(earned(hardest)).toContain('master');
     expect(earned({ ...hardest, lives: 3 })).not.toContain('master');
     expect(earned({ ...hardest, syl: true })).not.toContain('master');

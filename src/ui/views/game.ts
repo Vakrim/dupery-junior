@@ -18,7 +18,7 @@ export function wordHTML(w: string, s: Settings, pos: { first: boolean; last: bo
   }
   const colour = s.hints ? COLOURS.find((x) => x.loc === w) : undefined;
   const style = colour ? ` style="color:${colour.ink}"` : '';
-  return `<span class="w" data-word="${esc(w)}"${style}>${inner}${pos.last ? '.' : ''}</span>`;
+  return `<span class="w"${style}>${inner}${pos.last ? '.' : ''}</span>`;
 }
 
 function bubbleHTML(st: AppState, i: number): string {
@@ -26,9 +26,6 @@ function bubbleHTML(st: AppState, i: number): string {
   const ws = words(statement, g.c.k);
   let html = ws.map((w, j) => wordHTML(w, g.s, { first: j === 0, last: j === ws.length - 1 })).join(' ');
   if (g.s.hints) html += ` ${arrowOf(statement)}`;
-  if (g.s.read) {
-    html += ` <button class="say" data-act="say" data-i="${i}" ${g.tokens ? '' : 'disabled'} title="Przeczytaj całe zdanie">🔊</button>`;
-  }
   return html;
 }
 
@@ -78,7 +75,8 @@ function bannerHTML(st: AppState): string {
 export function gameHTML(st: AppState): string {
   const g = st.game!, k = g.c.k, left = k - g.arrested.length;
   const goal = k === 1 ? 'Zniknęło ciastko 🍪. Znajdź złodzieja.' : `Zniknęły ciastka 🍪. Znajdź ${k === 2 ? 'dwóch' : 'trzech'} złodziei.`;
-  return `${bannerHTML(st)}<div class="bar"><span>${goal}</span><span>${hearts(g.lives, g.s.lives)}</span>
-    ${g.s.read ? `<span title="Zdania do przeczytania na głos">🔊 × ${g.tokens}</span>` : ''}${k > 1 ? `<span>Do złapania: ${left}</span>` : ''}</div>
+  const lies = g.c.liars ? `🤥 ${k === 1 ? 'Złodziej kłamie' : 'Złodzieje kłamią'}` : '😇 Wszyscy mówią prawdę';
+  return `${bannerHTML(st)}<div class="bar"><span>${goal}</span><span>${lies}</span><span>${hearts(g.lives, g.s.lives)}</span>
+    ${k > 1 ? `<span>Do złapania: ${left}</span>` : ''}</div>
     <div class="board" style="--cols:${g.c.board.cols}">${g.c.board.cells.map((_, i) => cellHTML(st, i)).join('')}</div>`;
 }

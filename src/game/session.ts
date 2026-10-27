@@ -15,15 +15,11 @@ export interface GameState {
   revealed: number[];
   arrested: number[];
   lives: number;
-  /** Number of whole sentences the player can still hear. */
-  tokens: number;
   selected: number | null;
   over: 'win' | 'lose' | null;
   /** Stamp ids, set when the player wins. */
   earned: string[];
 }
-
-export const START_TOKENS = 2;
 
 export function newGame(settings: Settings): GameState | null {
   const [cols, rows] = SIZES[settings.size];
@@ -31,7 +27,7 @@ export function newGame(settings: Settings): GameState | null {
   if (!c) return null;
   return {
     c, s: { ...settings }, marks: {}, revealed: [], arrested: [],
-    lives: settings.lives, tokens: START_TOKENS, selected: null, over: null, earned: [],
+    lives: settings.lives, selected: null, over: null, earned: [],
   };
 }
 
@@ -44,13 +40,6 @@ export function clickCell(g: GameState, i: number): void {
 
 export function toggleMark(g: GameState, i: number, mark: Mark): void {
   g.marks[i] = g.marks[i] === mark ? null : mark;
-}
-
-/** Returns false when no token is left. */
-export function spendToken(g: GameState): boolean {
-  if (g.tokens <= 0) return false;
-  g.tokens--;
-  return true;
 }
 
 export function arrest(g: GameState, i: number): void {

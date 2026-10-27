@@ -45,7 +45,7 @@ describe('wordHTML', () => {
   });
 
   it('writes the plain word when syllables are off', () => {
-    expect(wordHTML('psem', { ...on, syl: false }, where)).toBe('<span class="w" data-word="psem">psem</span>');
+    expect(wordHTML('psem', { ...on, syl: false }, where)).toBe('<span class="w">psem</span>');
   });
 
   it('colours a colour word only when hints are on', () => {
@@ -86,6 +86,17 @@ describe('views', () => {
     expect(html.match(/class="cell /g)).toHaveLength(9);
     expect(html.match(/class="cardback"/g)).toHaveLength(9);
     expect(html).not.toContain('class="bubble"');
+  });
+
+  it('tells the player whether the thieves lie', () => {
+    const show = (liars: boolean, k: number) => {
+      const st = loggedIn({ liars, k });
+      st.game = newGame(st.store.profiles.Ala.settings);
+      return gameHTML(st);
+    };
+    expect(show(true, 1)).toContain('Złodziej kłamie');
+    expect(show(true, 2)).toContain('Złodzieje kłamią');
+    expect(show(false, 2)).toContain('Wszyscy mówią prawdę');
   });
 
   it('shows the sentences when the game is lost, and marks the thieves', () => {

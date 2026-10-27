@@ -64,6 +64,13 @@ describe('parseBackup', () => {
     expect(parseBackup(text).Ala).toEqual({ avatar: AVATARS[0], stamps: { big: 3 }, settings: DEFAULT_SETTINGS });
   });
 
+  it('loads a profile from before the reading option was removed', () => {
+    const old = { avatar: '🦄', stamps: { case: 2, noread: 1, reader: 1 }, settings: { ...DEFAULT_SETTINGS, read: false, syl: false } };
+    const loaded = parseBackup(JSON.stringify({ profiles: { Ala: old } })).Ala;
+    expect(loaded.settings).toEqual({ ...DEFAULT_SETTINGS, syl: false });
+    expect(loaded.stamps).toEqual(old.stamps);
+  });
+
   it('keeps a "__proto__" name as a plain profile name', () => {
     const profiles = parseBackup('{"profiles":{"__proto__":{"avatar":"x"}}}');
     expect(Object.keys(profiles)).toEqual(['__proto__']);

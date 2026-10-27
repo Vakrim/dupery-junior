@@ -1,8 +1,6 @@
-import { arrest, clickCell, newGame, spendToken, toggleMark, type Mark } from '../game/session';
-import { sentence } from '../game/sentences';
+import { arrest, clickCell, newGame, toggleMark, type Mark } from '../game/session';
 import { applySetting, awardStamps, parseBackup, DEFAULT_SETTINGS, type Store } from '../state/profiles';
 import { currentProfile, type AppState, type Screen } from './state';
-import { say } from './speech';
 
 const input = (id: string) => document.getElementById(id) as HTMLInputElement;
 
@@ -11,17 +9,13 @@ const input = (id: string) => document.getElementById(id) as HTMLInputElement;
  * `persist` saves the store after a change the player wants to keep.
  */
 export function handleClick(st: AppState, target: Element, persist: () => void): boolean {
-  const el = target.closest<HTMLElement>('[data-act],.w,.cell');
+  const el = target.closest<HTMLElement>('[data-act],.cell');
   if (!el) return false;
   const g = st.game;
   const i = Number(el.dataset.i);
 
   if (!el.dataset.act) {
     if (st.screen !== 'game' || !g) return false;
-    if (el.classList.contains('w')) {
-      if (g.s.read) say(el.dataset.word!); // one word is free
-      return false;
-    }
     if (g.over) return false;
     clickCell(g, i);
     st.confirm = null;
@@ -66,9 +60,6 @@ export function handleClick(st: AppState, target: Element, persist: () => void):
       st.screen = 'game';
       break;
     }
-    case 'say':
-      if (g && spendToken(g)) say(sentence(g.c.statements[i], g.c.k));
-      break;
     case 'mark':
       if (g) toggleMark(g, i, el.dataset.m as Mark);
       break;

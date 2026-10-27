@@ -32,8 +32,7 @@ export interface Settings {
   /** Number of thieves. */
   k: number;
   liars: boolean;
-  /** Help options: read aloud, arrows and colours, syllables. */
-  read: boolean;
+  /** Help options: arrows and colours, syllables. */
   hints: boolean;
   syl: boolean;
   lives: number;

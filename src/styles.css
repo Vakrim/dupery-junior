@@ -43,5 +43,4 @@ h2 { margin: 16px 0 8px; }
 .syl .s0 { color: #1a237e; } .syl .s1 { color: #c2185b; } .syl .w { letter-spacing: .06em; }
 .tools { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 6px; }
 .tools button { padding: 4px 8px; font-size: .9rem; }
-.say { font-size: 1rem; padding: 2px 8px; }
 @media (max-width: 700px) { .bubble { font-size: 1.2rem; } .animal { height: 76px; } }

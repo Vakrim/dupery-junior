@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { arrest, clickCell, newGame, spendToken, START_TOKENS, toggleMark, type GameState } from './session';
+import { arrest, clickCell, newGame, toggleMark, type GameState } from './session';
 import type { Settings } from './types';
 
-const settings: Settings = { size: '3x3', k: 2, liars: false, read: true, hints: true, syl: true, lives: 2 };
+const settings: Settings = { size: '3x3', k: 2, liars: false, hints: true, syl: true, lives: 2 };
 
 function game(over: Partial<Settings> = {}): GameState {
   return newGame({ ...settings, ...over })!;
@@ -10,9 +10,9 @@ function game(over: Partial<Settings> = {}): GameState {
 const innocent = (g: GameState) => [...Array(9).keys()].filter((i) => !g.c.thieves.includes(i));
 
 describe('newGame', () => {
-  it('starts with full lives and tokens', () => {
+  it('starts with full lives', () => {
     const g = game();
-    expect(g).toMatchObject({ lives: 2, tokens: START_TOKENS, over: null, arrested: [], selected: null });
+    expect(g).toMatchObject({ lives: 2, over: null, arrested: [], selected: null });
     expect(g.c.board.cells).toHaveLength(9);
   });
 
@@ -53,16 +53,6 @@ describe('toggleMark', () => {
     expect(g.marks[1]).toBe('ok');
     toggleMark(g, 1, 'ok');
     expect(g.marks[1]).toBeNull();
-  });
-});
-
-describe('spendToken', () => {
-  it('stops at zero', () => {
-    const g = game();
-    expect(spendToken(g)).toBe(true);
-    expect(spendToken(g)).toBe(true);
-    expect(spendToken(g)).toBe(false);
-    expect(g.tokens).toBe(0);
   });
 });
 

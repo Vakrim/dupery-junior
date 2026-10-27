@@ -3,7 +3,7 @@ import type { Settings } from '../game/types';
 
 export const STORAGE_KEY = 'dupery-junior:v1';
 export const AVATARS = ['🦸', '🕵️', '🧙', '🧑‍🚀', '🦄', '🐲', '🤖', '👑'];
-export const DEFAULT_SETTINGS: Settings = { size: '3x3', k: 1, liars: false, read: true, hints: true, syl: true, lives: 5 };
+export const DEFAULT_SETTINGS: Settings = { size: '3x3', k: 1, liars: false, hints: true, syl: true, lives: 5 };
 
 export interface Profile {
   avatar: string;
@@ -25,7 +25,8 @@ function parseProfile(raw: unknown): Profile {
   return {
     avatar: typeof p.avatar === 'string' ? p.avatar : AVATARS[0],
     stamps: Object.fromEntries(Object.entries(stamps).filter(([, n]) => typeof n === 'number')) as Record<string, number>,
-    settings: { ...DEFAULT_SETTINGS, ...(isRecord(p.settings) ? p.settings : {}) },
+    // Keys that the game no longer knows (like the old `read`) are dropped.
+    settings: { ...DEFAULT_SETTINGS, ...Object.fromEntries(Object.entries(isRecord(p.settings) ? p.settings : {}).filter(([k]) => k in DEFAULT_SETTINGS)) },
   };
 }
 
