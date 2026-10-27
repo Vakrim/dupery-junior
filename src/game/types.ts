@@ -16,25 +16,25 @@ export interface Board {
 
 /** A fact about a cell, as seen from the cell of the speaker. */
 export type Property =
-  | { type: 'species'; val: SpeciesId }
-  | { type: 'colour'; val: ColourId }
+  | { type: 'species'; value: SpeciesId }
+  | { type: 'colour'; value: ColourId }
   | { type: AccessoryType }
   | { type: PlaceType };
 
 export interface Statement {
   prop: Property;
   /** Negative: "no thief matches". Positive: "exactly one thief matches". */
-  neg: boolean;
+  negated: boolean;
 }
 
 export interface Settings {
   size: SizeId;
   /** Number of thieves. */
-  k: number;
+  thiefCount: number;
   liars: boolean;
   /** Help options: arrows and colours, syllables. */
   hints: boolean;
-  syl: boolean;
+  syllables: boolean;
   lives: number;
 }
 
@@ -43,6 +43,6 @@ export interface Case {
   thieves: number[];
   /** One statement per cell, indexed by cell. */
   statements: Statement[];
-  k: number;
+  thiefCount: number;
   liars: boolean;
 }

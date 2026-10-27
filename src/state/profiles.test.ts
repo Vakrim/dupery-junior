@@ -5,7 +5,7 @@ import {
 
 const memory = (initial?: string) => {
   const data = new Map<string, string>(initial === undefined ? [] : [[STORAGE_KEY, initial]]);
-  return { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string, v: string) => void data.set(k, v) };
+  return { getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => void data.set(key, value) };
 };
 
 const profile = (): Profile => ({ avatar: '🦄', stamps: {}, settings: { ...DEFAULT_SETTINGS } });
@@ -65,9 +65,9 @@ describe('parseBackup', () => {
   });
 
   it('loads a profile from before the reading option was removed', () => {
-    const old = { avatar: '🦄', stamps: { case: 2, noread: 1, reader: 1 }, settings: { ...DEFAULT_SETTINGS, read: false, syl: false } };
+    const old = { avatar: '🦄', stamps: { case: 2, noread: 1, reader: 1 }, settings: { ...DEFAULT_SETTINGS, read: false, syllables: false } };
     const loaded = parseBackup(JSON.stringify({ profiles: { Ala: old } })).Ala;
-    expect(loaded.settings).toEqual({ ...DEFAULT_SETTINGS, syl: false });
+    expect(loaded.settings).toEqual({ ...DEFAULT_SETTINGS, syllables: false });
     expect(loaded.stamps).toEqual(old.stamps);
   });
 
@@ -80,23 +80,23 @@ describe('parseBackup', () => {
 
 describe('awardStamps', () => {
   it('counts each time a stamp is earned', () => {
-    const p = profile();
-    awardStamps(p, ['case', 'big']);
-    awardStamps(p, ['case']);
-    expect(p.stamps).toEqual({ case: 2, big: 1 });
+    const player = profile();
+    awardStamps(player, ['case', 'big']);
+    awardStamps(player, ['case']);
+    expect(player.stamps).toEqual({ case: 2, big: 1 });
   });
 });
 
 describe('applySetting', () => {
   it('sets an option', () => {
-    const s = { ...DEFAULT_SETTINGS };
-    applySetting(s, { liars: true });
-    expect(s.liars).toBe(true);
+    const settings = { ...DEFAULT_SETTINGS };
+    applySetting(settings, { liars: true });
+    expect(settings.liars).toBe(true);
   });
 
   it('lowers the thieves to the maximum of a smaller board', () => {
-    const s = { ...DEFAULT_SETTINGS, size: '4x4' as const, k: 3 };
-    applySetting(s, { size: '3x3' });
-    expect(s.k).toBe(2);
+    const settings = { ...DEFAULT_SETTINGS, size: '4x4' as const, thiefCount: 3 };
+    applySetting(settings, { size: '3x3' });
+    expect(settings.thiefCount).toBe(2);
   });
 });

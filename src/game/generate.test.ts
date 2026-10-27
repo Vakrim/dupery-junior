@@ -19,19 +19,19 @@ describe('generateCase', () => {
 
   for (const size of sizes) {
     const [cols, rows] = SIZES[size];
-    for (let k = 1; k <= maxThieves(size); k++) {
+    for (let thiefCount = 1; thiefCount <= maxThieves(size); thiefCount++) {
       for (const liars of [false, true]) {
-        it(`makes a case with one solution: ${size}, ${k} thief/thieves, liars ${liars}`, () => {
-          for (let n = 0; n < 10; n++) {
-            const c = generateCase({ cols, rows, k, liars })!;
-            expect(c).not.toBeNull();
-            expect(c.thieves).toHaveLength(k);
-            expect(c.statements).toHaveLength(cols * rows);
+        it(`makes a case with one solution: ${size}, ${thiefCount} thief/thieves, liars ${liars}`, () => {
+          for (let round = 0; round < 10; round++) {
+            const generated = generateCase({ cols, rows, thiefCount, liars })!;
+            expect(generated).not.toBeNull();
+            expect(generated.thieves).toHaveLength(thiefCount);
+            expect(generated.statements).toHaveLength(cols * rows);
 
             // Brute force, independent of the generator: only the real thieves fit every statement.
-            const fits = combos(cols * rows, k).filter((set) =>
-              c.statements.every((s, speaker) => holds(s, speaker, set, c.board) === (liars ? !set.includes(speaker) : true)));
-            expect(fits).toEqual([c.thieves]);
+            const fits = combos(cols * rows, thiefCount).filter((thiefSet) =>
+              generated.statements.every((statement, speaker) => holds(statement, speaker, thiefSet, generated.board) === (liars ? !thiefSet.includes(speaker) : true)));
+            expect(fits).toEqual([generated.thieves]);
           }
         });
       }
@@ -39,18 +39,18 @@ describe('generateCase', () => {
   }
 
   it('writes sentences of 3 to 5 words, all with known syllables', () => {
-    for (const k of [1, 2, 3]) {
-      const c = generateCase({ cols: 4, rows: 4, k, liars: true })!;
-      for (const s of c.statements) {
-        const ws = words(s, k);
-        expect(ws.length, sentence(s, k)).toBeGreaterThanOrEqual(3);
-        expect(ws.length, sentence(s, k)).toBeLessThanOrEqual(5);
-        for (const w of ws) expect(syllables(w).join(''), w).toBe(w.toLowerCase());
+    for (const thiefCount of [1, 2, 3]) {
+      const generated = generateCase({ cols: 4, rows: 4, thiefCount, liars: true })!;
+      for (const statement of generated.statements) {
+        const wordList = words(statement, thiefCount);
+        expect(wordList.length, sentence(statement, thiefCount)).toBeGreaterThanOrEqual(3);
+        expect(wordList.length, sentence(statement, thiefCount)).toBeLessThanOrEqual(5);
+        for (const word of wordList) expect(syllables(word).join(''), word).toBe(word.toLowerCase());
       }
     }
   });
 
   it('returns null when it cannot make a case', () => {
-    expect(generateCase({ cols: 3, rows: 3, k: 1, liars: false }, 0)).toBeNull();
+    expect(generateCase({ cols: 3, rows: 3, thiefCount: 1, liars: false }, 0)).toBeNull();
   });
 });

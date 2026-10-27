@@ -2,99 +2,99 @@ import { arrest, clickCell, newGame, toggleMark, type Mark } from '../game/sessi
 import { applySetting, awardStamps, parseBackup, DEFAULT_SETTINGS, type Store } from '../state/profiles';
 import { currentProfile, type AppState, type Screen } from './state';
 
-const input = (id: string) => document.getElementById(id) as HTMLInputElement;
+const input = (elementId: string) => document.getElementById(elementId) as HTMLInputElement;
 
 /**
  * Handles one click on the page. Returns true when the page must render again.
  * `persist` saves the store after a change the player wants to keep.
  */
-export function handleClick(st: AppState, target: Element, persist: () => void): boolean {
-  const el = target.closest<HTMLElement>('[data-act],.cell');
-  if (!el) return false;
-  const g = st.game;
-  const i = Number(el.dataset.i);
+export function handleClick(state: AppState, target: Element, persist: () => void): boolean {
+  const element = target.closest<HTMLElement>('[data-action],.cell');
+  if (!element) return false;
+  const game = state.game;
+  const cellIndex = Number(element.dataset.cell);
 
-  if (!el.dataset.act) {
-    if (st.screen !== 'game' || !g) return false;
-    if (g.over) return false;
-    clickCell(g, i);
-    st.confirm = null;
+  if (!element.dataset.action) {
+    if (state.screen !== 'game' || !game) return false;
+    if (game.over) return false;
+    clickCell(game, cellIndex);
+    state.confirm = null;
     return true;
   }
 
-  switch (el.dataset.act) {
+  switch (element.dataset.action) {
     case 'screen':
-      st.screen = el.dataset.v as Screen;
+      state.screen = element.dataset.value as Screen;
       break;
     case 'avatar':
-      st.pickAvatar = el.dataset.a!;
-      st.nick = input('nick').value;
+      state.pickAvatar = element.dataset.avatar!;
+      state.nick = input('nick').value;
       break;
     case 'create': {
       const name = input('nick').value.trim();
       if (!name) return false;
-      st.store.profiles[name] ??= { avatar: st.pickAvatar, stamps: {}, settings: { ...DEFAULT_SETTINGS } };
-      st.store.current = name;
-      st.screen = 'setup';
+      state.store.profiles[name] ??= { avatar: state.pickAvatar, stamps: {}, settings: { ...DEFAULT_SETTINGS } };
+      state.store.current = name;
+      state.screen = 'setup';
       persist();
       break;
     }
     case 'login':
-      st.store.current = el.dataset.n!;
-      st.screen = 'setup';
+      state.store.current = element.dataset.name!;
+      state.screen = 'setup';
       persist();
       break;
     case 'set':
-      applySetting(currentProfile(st).settings, { [el.dataset.k!]: JSON.parse(el.dataset.v!) });
+      applySetting(currentProfile(state).settings, { [element.dataset.setting!]: JSON.parse(element.dataset.value!) });
       persist();
       break;
     case 'start':
     case 'again': {
-      const game = newGame(currentProfile(st).settings);
-      if (!game) {
+      const started = newGame(currentProfile(state).settings);
+      if (!started) {
         alert('Nie udało się stworzyć sprawy. Spróbuj jeszcze raz.');
         return false;
       }
-      st.game = game;
-      st.confirm = null;
-      st.screen = 'game';
+      state.game = started;
+      state.confirm = null;
+      state.screen = 'game';
       break;
     }
     case 'mark':
-      if (g) toggleMark(g, i, el.dataset.m as Mark);
+      if (game) toggleMark(game, cellIndex, element.dataset.mark as Mark);
       break;
     case 'arrest':
-      if (!g) return false;
-      if (st.confirm !== i) {
-        st.confirm = i; // the first click only asks "na pewno?"
+      if (!game) return false;
+      if (state.confirm !== cellIndex) {
+        state.confirm = cellIndex; // the first click only asks "na pewno?"
         break;
       }
-      arrest(g, i);
-      st.confirm = null;
-      if (g.over === 'win') {
-        awardStamps(currentProfile(st), g.earned);
+      arrest(game, cellIndex);
+      state.confirm = null;
+      if (game.over === 'win') {
+        awardStamps(currentProfile(state), game.earned);
         persist();
       }
       break;
     case 'export':
-      downloadBackup(st.store);
+      downloadBackup(state.store);
       return false;
   }
   return true;
 }
 
 function downloadBackup(store: Store): void {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(store)], { type: 'application/json' }));
-  a.download = `${new Date().toISOString().slice(0, 10)} - Dupery Junior profile.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([JSON.stringify(store)], { type: 'application/json' }));
+  link.download = `${new Date().toISOString().slice(0, 10)} - Dupery Junior profile.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
 /** Merges the profiles of a backup file into the store. Shows a message when the file is wrong. */
-export async function importBackup(st: AppState, file: File, persist: () => void): Promise<boolean> {
+export async function importBackup(state: AppState, file: File, persist: () => void): Promise<boolean> {
   try {
-    Object.assign(st.store.profiles, parseBackup(await file.text()));
+    Object.assign(state.store.profiles, parseBackup(await file.text()));
     persist();
     return true;
   } catch {

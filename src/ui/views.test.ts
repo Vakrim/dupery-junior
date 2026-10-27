@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { newGame } from '../game/session';
 import type { Settings } from '../game/types';
 import { DEFAULT_SETTINGS, type Profile } from '../state/profiles';
-import { esc } from './html';
+import { escapeHtml } from './html';
 import { headerHTML } from './render';
 import { createState, type AppState } from './state';
 import { albumHTML } from './views/album';
@@ -17,9 +17,9 @@ const profile = (settings: Partial<Settings> = {}): Profile => ({
 const loggedIn = (settings: Partial<Settings> = {}): AppState =>
   createState({ profiles: { Ala: profile(settings) }, current: 'Ala' });
 
-describe('esc', () => {
+describe('escapeHtml', () => {
   it('escapes HTML characters', () => {
-    expect(esc(`<a href="x">'&'</a>`)).toBe('&lt;a href=&quot;x&quot;&gt;&#39;&amp;&#39;&lt;/a&gt;');
+    expect(escapeHtml(`<a href="x">'&'</a>`)).toBe('&lt;a href=&quot;x&quot;&gt;&#39;&amp;&#39;&lt;/a&gt;');
   });
 });
 
@@ -31,33 +31,33 @@ describe('createState', () => {
 });
 
 describe('wordHTML', () => {
-  const on = { ...DEFAULT_SETTINGS };
+  const enabled = { ...DEFAULT_SETTINGS };
   const where = { first: false, last: false };
 
   it('splits a word in syllables', () => {
-    expect(wordHTML('okulary', on, where)).toContain('<span class="s0">o</span><span class="s1">ku</span><span class="s0">la</span><span class="s1">ry</span>');
+    expect(wordHTML('okulary', enabled, where)).toContain('<span class="s0">o</span><span class="s1">ku</span><span class="s0">la</span><span class="s1">ry</span>');
   });
 
   it('writes a capital letter at the start of the sentence and a full stop at the end', () => {
-    const html = wordHTML('złodziej', on, { first: true, last: true });
+    const html = wordHTML('złodziej', enabled, { first: true, last: true });
     expect(html).toContain('<span class="s0">Zło</span>');
     expect(html).toMatch(/\.<\/span>$/);
   });
 
   it('writes the plain word when syllables are off', () => {
-    expect(wordHTML('psem', { ...on, syl: false }, where)).toBe('<span class="w">psem</span>');
+    expect(wordHTML('psem', { ...enabled, syllables: false }, where)).toBe('<span class="w">psem</span>');
   });
 
   it('colours a colour word only when hints are on', () => {
-    expect(wordHTML('czerwonym', on, where)).toContain('style="color:#c62828"');
-    expect(wordHTML('czerwonym', { ...on, hints: false }, where)).not.toContain('style=');
+    expect(wordHTML('czerwonym', enabled, where)).toContain('style="color:#c62828"');
+    expect(wordHTML('czerwonym', { ...enabled, hints: false }, where)).not.toContain('style=');
   });
 });
 
 describe('views', () => {
   it('shows the profile names, escaped', () => {
-    const st = createState({ profiles: { '<b>': profile() }, current: null });
-    const html = profilesHTML(st);
+    const state = createState({ profiles: { '<b>': profile() }, current: null });
+    const html = profilesHTML(state);
     expect(html).toContain('&lt;b&gt;');
     expect(html).not.toContain('<b>&');
   });
@@ -69,8 +69,8 @@ describe('views', () => {
 
   it('disables 3 thieves on a 3x3 board', () => {
     const html = setupHTML(loggedIn({ size: '3x3' }));
-    expect(html).toMatch(/data-k="k" data-v="3" disabled/);
-    expect(setupHTML(loggedIn({ size: '4x4' }))).not.toMatch(/data-k="k" data-v="3" disabled/);
+    expect(html).toMatch(/data-setting="thiefCount" data-value="3" disabled/);
+    expect(setupHTML(loggedIn({ size: '4x4' }))).not.toMatch(/data-setting="thiefCount" data-value="3" disabled/);
   });
 
   it('shows how many times each stamp was earned', () => {
@@ -80,19 +80,19 @@ describe('views', () => {
   });
 
   it('draws one cell for each animal and hides the sentences at the start', () => {
-    const st = loggedIn();
-    st.game = newGame(st.store.profiles.Ala.settings);
-    const html = gameHTML(st);
+    const state = loggedIn();
+    state.game = newGame(state.store.profiles.Ala.settings);
+    const html = gameHTML(state);
     expect(html.match(/class="cell /g)).toHaveLength(9);
     expect(html.match(/class="cardback"/g)).toHaveLength(9);
     expect(html).not.toContain('class="bubble"');
   });
 
   it('tells the player whether the thieves lie', () => {
-    const show = (liars: boolean, k: number) => {
-      const st = loggedIn({ liars, k });
-      st.game = newGame(st.store.profiles.Ala.settings);
-      return gameHTML(st);
+    const show = (liars: boolean, thiefCount: number) => {
+      const state = loggedIn({ liars, thiefCount });
+      state.game = newGame(state.store.profiles.Ala.settings);
+      return gameHTML(state);
     };
     expect(show(true, 1)).toContain('Złodziej kłamie');
     expect(show(true, 2)).toContain('Złodzieje kłamią');
@@ -100,10 +100,10 @@ describe('views', () => {
   });
 
   it('shows the sentences when the game is lost, and marks the thieves', () => {
-    const st = loggedIn({ lives: 1, k: 2 });
-    const g = (st.game = newGame(st.store.profiles.Ala.settings)!);
-    g.over = 'lose';
-    const html = gameHTML(st);
+    const state = loggedIn({ lives: 1, thiefCount: 2 });
+    const game = (state.game = newGame(state.store.profiles.Ala.settings)!);
+    game.over = 'lose';
+    const html = gameHTML(state);
     expect(html.match(/class="bubble"/g)).toHaveLength(9);
     expect(html.match(/ thief"/g)).toHaveLength(2);
     expect(html).toContain('banner lose');

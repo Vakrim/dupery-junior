@@ -20,4 +20,4 @@ export function createState(store: Store): AppState {
 }
 
 /** The logged-in profile. Only call it when `store.current` is set. */
-export const currentProfile = (st: AppState): Profile => st.store.profiles[st.store.current!];
+export const currentProfile = (state: AppState): Profile => state.store.profiles[state.store.current!];

@@ -1,22 +1,22 @@
 // Pictures: Kenney Animal Pack Redux (CC0), see public/assets/animals/License.txt
-// `ins` is the instrumental case, used in "Złodziej jest psem".
+// `instrumental` is the instrumental case, used in "Złodziej jest psem".
 export const SPECIES = [
-  { id: 'pies', img: 'dog', ins: 'psem' },
-  { id: 'żaba', img: 'frog', ins: 'żabą' },
-  { id: 'miś', img: 'bear', ins: 'misiem' },
-  { id: 'królik', img: 'rabbit', ins: 'królikiem' },
-  { id: 'sowa', img: 'owl', ins: 'sową' },
-  { id: 'świnia', img: 'pig', ins: 'świnią' },
-  { id: 'słoń', img: 'elephant', ins: 'słoniem' },
-  { id: 'pingwin', img: 'penguin', ins: 'pingwinem' },
+  { id: 'pies', image: 'dog', instrumental: 'psem' },
+  { id: 'żaba', image: 'frog', instrumental: 'żabą' },
+  { id: 'miś', image: 'bear', instrumental: 'misiem' },
+  { id: 'królik', image: 'rabbit', instrumental: 'królikiem' },
+  { id: 'sowa', image: 'owl', instrumental: 'sową' },
+  { id: 'świnia', image: 'pig', instrumental: 'świnią' },
+  { id: 'słoń', image: 'elephant', instrumental: 'słoniem' },
+  { id: 'pingwin', image: 'penguin', instrumental: 'pingwinem' },
 ] as const;
 
-// `loc` is the locative case, used in "Złodziej jest na czerwonym".
+// `locative` is the locative case, used in "Złodziej jest na czerwonym".
 export const COLOURS = [
-  { id: 'red', loc: 'czerwonym', css: '#f9c0c0', ink: '#c62828' },
-  { id: 'blue', loc: 'niebieskim', css: '#bcd8f7', ink: '#1565c0' },
-  { id: 'green', loc: 'zielonym', css: '#c3ecc3', ink: '#2e7d32' },
-  { id: 'yellow', loc: 'żółtym', css: '#fbeaa0', ink: '#b8860b' },
+  { id: 'red', locative: 'czerwonym', background: '#f9c0c0', ink: '#c62828' },
+  { id: 'blue', locative: 'niebieskim', background: '#bcd8f7', ink: '#1565c0' },
+  { id: 'green', locative: 'zielonym', background: '#c3ecc3', ink: '#2e7d32' },
+  { id: 'yellow', locative: 'żółtym', background: '#fbeaa0', ink: '#b8860b' },
 ] as const;
 
 // `yes` follows "ma", `no` follows "nie ma".

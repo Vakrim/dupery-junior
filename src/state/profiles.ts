@@ -3,7 +3,7 @@ import type { Settings } from '../game/types';
 
 export const STORAGE_KEY = 'dupery-junior:v1';
 export const AVATARS = ['🦸', '🕵️', '🧙', '🧑‍🚀', '🦄', '🐲', '🤖', '👑'];
-export const DEFAULT_SETTINGS: Settings = { size: '3x3', k: 1, liars: false, hints: true, syl: true, lives: 5 };
+export const DEFAULT_SETTINGS: Settings = { size: '3x3', thiefCount: 1, liars: false, hints: true, syllables: true, lives: 5 };
 
 export interface Profile {
   avatar: string;
@@ -17,16 +17,16 @@ export interface Store {
   current: string | null;
 }
 
-const isRecord = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null && !Array.isArray(x);
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 
 function parseProfile(raw: unknown): Profile {
-  const p = isRecord(raw) ? raw : {};
-  const stamps = isRecord(p.stamps) ? p.stamps : {};
+  const record = isRecord(raw) ? raw : {};
+  const stamps = isRecord(record.stamps) ? record.stamps : {};
   return {
-    avatar: typeof p.avatar === 'string' ? p.avatar : AVATARS[0],
-    stamps: Object.fromEntries(Object.entries(stamps).filter(([, n]) => typeof n === 'number')) as Record<string, number>,
+    avatar: typeof record.avatar === 'string' ? record.avatar : AVATARS[0],
+    stamps: Object.fromEntries(Object.entries(stamps).filter(([, count]) => typeof count === 'number')) as Record<string, number>,
     // Keys that the game no longer knows (like the old `read`) are dropped.
-    settings: { ...DEFAULT_SETTINGS, ...Object.fromEntries(Object.entries(isRecord(p.settings) ? p.settings : {}).filter(([k]) => k in DEFAULT_SETTINGS)) },
+    settings: { ...DEFAULT_SETTINGS, ...Object.fromEntries(Object.entries(isRecord(record.settings) ? record.settings : {}).filter(([key]) => key in DEFAULT_SETTINGS)) },
   };
 }
 
@@ -34,7 +34,7 @@ function parseProfile(raw: unknown): Profile {
 export function parseProfiles(raw: unknown): Record<string, Profile> {
   if (!isRecord(raw)) throw new Error('Not a profile map');
   // fromEntries makes plain own properties, so a "__proto__" key from a file is harmless.
-  return Object.fromEntries(Object.entries(raw).map(([name, p]) => [name, parseProfile(p)]));
+  return Object.fromEntries(Object.entries(raw).map(([name, profile]) => [name, parseProfile(profile)]));
 }
 
 export function loadStore(storage: Pick<Storage, 'getItem'>): Store {
@@ -60,11 +60,11 @@ export function saveStore(storage: Pick<Storage, 'setItem'>, store: Store): void
 export const parseBackup = (text: string): Record<string, Profile> => parseProfiles(JSON.parse(text)?.profiles);
 
 export function awardStamps(profile: Profile, ids: readonly string[]): void {
-  for (const id of ids) profile.stamps[id] = (profile.stamps[id] ?? 0) + 1;
+  for (const stampId of ids) profile.stamps[stampId] = (profile.stamps[stampId] ?? 0) + 1;
 }
 
 /** Changes options. The number of thieves cannot be larger than the board allows. */
-export function applySetting(s: Settings, patch: Partial<Settings>): void {
-  Object.assign(s, patch);
-  s.k = Math.min(s.k, maxThieves(s.size));
+export function applySetting(settings: Settings, patch: Partial<Settings>): void {
+  Object.assign(settings, patch);
+  settings.thiefCount = Math.min(settings.thiefCount, maxThieves(settings.size));
 }

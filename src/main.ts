@@ -8,26 +8,26 @@ import { createState } from './ui/state';
 const state = createState(loadStore(localStorage));
 const persist = () => saveStore(localStorage, state.store);
 
-document.addEventListener('click', (e) => {
-  if (handleClick(state, e.target as Element, persist)) render(state);
+document.addEventListener('click', (event) => {
+  if (handleClick(state, event.target as Element, persist)) render(state);
 });
 
-document.addEventListener('change', async (e) => {
-  const input = e.target as HTMLInputElement;
+document.addEventListener('change', async (event) => {
+  const input = event.target as HTMLInputElement;
   if (input.id !== 'import' || !input.files?.[0]) return;
   if (await importBackup(state, input.files[0], persist)) render(state);
 });
 
 // Hints: pointing at a sentence lights up the animals it talks about.
-function highlight(on: boolean, e: Event) {
-  const g = state.game;
-  const bubble = (e.target as Element).closest<HTMLElement>('.bubble');
-  if (!bubble || state.screen !== 'game' || !g?.s.hints) return;
-  const i = Number(bubble.dataset.i);
-  const lit = matchingCells(g.c.statements[i], i, g.c.board);
-  document.querySelectorAll<HTMLElement>('.cell').forEach((el) => el.classList.toggle('hl', on && lit.includes(Number(el.dataset.i))));
+function highlight(enabled: boolean, event: Event) {
+  const game = state.game;
+  const bubble = (event.target as Element).closest<HTMLElement>('.bubble');
+  if (!bubble || state.screen !== 'game' || !game?.settings.hints) return;
+  const cellIndex = Number(bubble.dataset.cell);
+  const litCells = matchingCells(game.puzzle.statements[cellIndex], cellIndex, game.puzzle.board);
+  document.querySelectorAll<HTMLElement>('.cell').forEach((cell) => cell.classList.toggle('hl', enabled && litCells.includes(Number(cell.dataset.cell))));
 }
-document.addEventListener('mouseover', (e) => highlight(true, e));
-document.addEventListener('mouseout', (e) => highlight(false, e));
+document.addEventListener('mouseover', (event) => highlight(true, event));
+document.addEventListener('mouseout', (event) => highlight(false, event));
 
 render(state);

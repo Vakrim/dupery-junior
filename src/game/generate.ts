@@ -7,32 +7,32 @@ const DEFAULT_TRIES = 300;
 /** How many random statements a speaker tries. The one that removes most suspects wins. */
 const STATEMENT_SAMPLES = 4;
 
-/** All k-element subsets of 0..n-1, in order. */
-export function combos(n: number, k: number, start = 0, cur: number[] = [], out: number[][] = []): number[][] {
-  if (cur.length === k) {
-    out.push(cur.slice());
-    return out;
+/** All subsets with `size` elements of 0..count-1, in order. */
+export function combos(count: number, size: number, start = 0, current: number[] = [], result: number[][] = []): number[][] {
+  if (current.length === size) {
+    result.push(current.slice());
+    return result;
   }
-  for (let i = start; i < n; i++) {
-    cur.push(i);
-    combos(n, k, i + 1, cur, out);
-    cur.pop();
+  for (let index = start; index < count; index++) {
+    current.push(index);
+    combos(count, size, index + 1, current, result);
+    current.pop();
   }
-  return out;
+  return result;
 }
 
 function allStatements(): Statement[] {
   const props: Property[] = [
-    ...SPECIES.map((x): Property => ({ type: 'species', val: x.id })),
+    ...SPECIES.map((species): Property => ({ type: 'species', value: species.id })),
     ...ACCESSORY_TYPES.map((type): Property => ({ type })),
-    ...COLOURS.map((x): Property => ({ type: 'colour', val: x.id })),
+    ...COLOURS.map((colour): Property => ({ type: 'colour', value: colour.id })),
     ...(Object.keys(PLACES) as PlaceType[]).map((type): Property => ({ type })),
   ];
   return props.flatMap((prop) => {
-    const out: Statement[] = [{ prop, neg: false }];
+    const result: Statement[] = [{ prop, negated: false }];
     // "Złodziej nie jest na czerwonym" would need 6 words, so colours have no negative form.
-    if (prop.type !== 'colour') out.push({ prop, neg: true });
-    return out;
+    if (prop.type !== 'colour') result.push({ prop, negated: true });
+    return result;
   });
 }
 
@@ -41,7 +41,7 @@ const STATEMENTS = allStatements();
 interface CaseOptions {
   cols: number;
   rows: number;
-  k: number;
+  thiefCount: number;
   liars: boolean;
 }
 
@@ -50,29 +50,29 @@ interface CaseOptions {
  * Innocent speakers tell the truth. When `liars` is on, every thief says something false.
  * Returns null after too many failed tries.
  */
-export function generateCase({ cols, rows, k, liars }: CaseOptions, tries = DEFAULT_TRIES): Case | null {
-  const n = cols * rows;
-  for (let t = 0; t < tries; t++) {
+export function generateCase({ cols, rows, thiefCount, liars }: CaseOptions, tries = DEFAULT_TRIES): Case | null {
+  const cellCount = cols * rows;
+  for (let attempt = 0; attempt < tries; attempt++) {
     const board = randomBoard(cols, rows);
-    const thieves = shuffle(range(n)).slice(0, k).sort((a, b) => a - b);
-    let alive = combos(n, k); // thief sets that still fit every statement so far
-    const statements = Array<Statement>(n);
-    let ok = true;
-    for (const speaker of shuffle(range(n))) {
+    const thieves = shuffle(range(cellCount)).slice(0, thiefCount).sort((first, second) => first - second);
+    let alive = combos(cellCount, thiefCount); // thief sets that still fit every statement so far
+    const statements = Array<Statement>(cellCount);
+    let solvable = true;
+    for (const speaker of shuffle(range(cellCount))) {
       // Is the speaker a thief in this candidate set? Then, with liars on, the statement must fail.
-      const wanted = (set: readonly number[]) => (liars ? !set.includes(speaker) : true);
-      const usable = STATEMENTS.filter((s) => holds(s, speaker, thieves, board) === wanted(thieves));
-      if (!usable.length) { ok = false; break; }
-      let best: { s: Statement; left: number[][] } | null = null;
-      for (let i = 0; i < STATEMENT_SAMPLES; i++) {
-        const s = pick(usable);
-        const left = alive.filter((set) => holds(s, speaker, set, board) === wanted(set));
-        if (!best || left.length < best.left.length) best = { s, left };
+      const wanted = (thiefSet: readonly number[]) => (liars ? !thiefSet.includes(speaker) : true);
+      const usable = STATEMENTS.filter((candidate) => holds(candidate, speaker, thieves, board) === wanted(thieves));
+      if (!usable.length) { solvable = false; break; }
+      let best: { statement: Statement; left: number[][] } | null = null;
+      for (let sample = 0; sample < STATEMENT_SAMPLES; sample++) {
+        const statement = pick(usable);
+        const left = alive.filter((thiefSet) => holds(statement, speaker, thiefSet, board) === wanted(thiefSet));
+        if (!best || left.length < best.left.length) best = { statement, left };
       }
-      statements[speaker] = best!.s;
+      statements[speaker] = best!.statement;
       alive = best!.left;
     }
-    if (ok && alive.length === 1) return { board, thieves, statements, k, liars };
+    if (solvable && alive.length === 1) return { board, thieves, statements, thiefCount, liars };
   }
   return null;
 }

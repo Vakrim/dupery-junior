@@ -7,9 +7,9 @@ export type Mark = 'ok' | '?';
 
 /** One game in progress. The functions below change it in place. */
 export interface GameState {
-  c: Case;
+  puzzle: Case;
   /** Copy of the settings at the start, so later changes do not affect this game. */
-  s: Settings;
+  settings: Settings;
   marks: Record<number, Mark | null>;
   /** Cells whose sentence the player has opened. */
   revealed: number[];
@@ -23,37 +23,37 @@ export interface GameState {
 
 export function newGame(settings: Settings): GameState | null {
   const [cols, rows] = SIZES[settings.size];
-  const c = generateCase({ cols, rows, k: settings.k, liars: settings.liars });
-  if (!c) return null;
+  const generated = generateCase({ cols, rows, thiefCount: settings.thiefCount, liars: settings.liars });
+  if (!generated) return null;
   return {
-    c, s: { ...settings }, marks: {}, revealed: [], arrested: [],
+    puzzle: generated, settings: { ...settings }, marks: {}, revealed: [], arrested: [],
     lives: settings.lives, selected: null, over: null, earned: [],
   };
 }
 
 /** The first click opens the sentence. Later clicks select or unselect the cell. */
-export function clickCell(g: GameState, i: number): void {
-  if (g.over) return;
-  if (!g.revealed.includes(i)) g.revealed.push(i);
-  else g.selected = g.selected === i ? null : i;
+export function clickCell(game: GameState, cellIndex: number): void {
+  if (game.over) return;
+  if (!game.revealed.includes(cellIndex)) game.revealed.push(cellIndex);
+  else game.selected = game.selected === cellIndex ? null : cellIndex;
 }
 
-export function toggleMark(g: GameState, i: number, mark: Mark): void {
-  g.marks[i] = g.marks[i] === mark ? null : mark;
+export function toggleMark(game: GameState, cellIndex: number, mark: Mark): void {
+  game.marks[cellIndex] = game.marks[cellIndex] === mark ? null : mark;
 }
 
-export function arrest(g: GameState, i: number): void {
-  if (g.over) return;
-  if (g.c.thieves.includes(i)) {
-    g.arrested.push(i);
-    if (g.arrested.length === g.c.k) {
-      g.over = 'win';
-      g.earned = earned(g.s);
+export function arrest(game: GameState, cellIndex: number): void {
+  if (game.over) return;
+  if (game.puzzle.thieves.includes(cellIndex)) {
+    game.arrested.push(cellIndex);
+    if (game.arrested.length === game.puzzle.thiefCount) {
+      game.over = 'win';
+      game.earned = earned(game.settings);
     }
   } else {
-    g.marks[i] = 'ok'; // the player now knows this animal is innocent
-    g.lives--;
-    if (g.lives <= 0) g.over = 'lose';
+    game.marks[cellIndex] = 'ok'; // the player now knows this animal is innocent
+    game.lives--;
+    if (game.lives <= 0) game.over = 'lose';
   }
-  g.selected = null;
+  game.selected = null;
 }
