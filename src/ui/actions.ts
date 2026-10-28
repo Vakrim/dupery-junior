@@ -60,6 +60,9 @@ export function handleClick(state: AppState, target: Element, persist: () => voi
       state.screen = 'game';
       break;
     }
+    case 'uppercase':
+      state.uppercase = !state.uppercase;
+      break;
     case 'mark':
       if (game) toggleMark(game, cellIndex, element.dataset.mark as Mark);
       break;

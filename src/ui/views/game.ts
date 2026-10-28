@@ -77,6 +77,7 @@ export function gameHTML(state: AppState): string {
   const goal = thiefCount === 1 ? 'Zniknęło ciastko 🍪. Znajdź złodzieja.' : `Zniknęły ciastka 🍪. Znajdź ${thiefCount === 2 ? 'dwóch' : 'trzech'} złodziei.`;
   const lies = game.puzzle.liars ? `🤥 ${thiefCount === 1 ? 'Złodziej kłamie' : 'Złodzieje kłamią'}` : '😇 Wszyscy mówią prawdę';
   return `${bannerHTML(state)}<div class="bar"><span>${goal}</span><span>${lies}</span><span>${hearts(game.lives, game.settings.lives)}</span>
+    <label><input type="checkbox" data-action="uppercase"${state.uppercase ? ' checked' : ''}> WIELKIE LITERY</label>
     ${thiefCount > 1 ? `<span>Do złapania: ${left}</span>` : ''}</div>
-    <div class="board" style="--cols:${game.puzzle.board.cols}">${game.puzzle.board.cells.map((_, cellIndex) => cellHTML(state, cellIndex)).join('')}</div>`;
+    <div class="board${state.uppercase ? ' caps' : ''}" style="--cols:${game.puzzle.board.cols}">${game.puzzle.board.cells.map((_, cellIndex) => cellHTML(state, cellIndex)).join('')}</div>`;
 }
